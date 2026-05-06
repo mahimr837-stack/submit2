@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BUTEX Cover Selection Platform</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      background: #f4f1ea;
+      font-family: Inter, sans-serif;
+      color: #1f2937;
+    }
+
+    .glass {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(14px);
+    }
+
+    .soft-shadow {
+      box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+    }
+
+    input, textarea {
+      transition: all .2s ease;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #6b7280;
+      box-shadow: 0 0 0 3px rgba(107,114,128,0.12);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="max-w-6xl mx-auto px-6 pt-6">
+    <div class="glass soft-shadow rounded-2xl px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+
+      <div>
+        <h1 class="text-xl font-semibold tracking-tight">
+          BUTEX Cover Platform
+        </h1>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3 text-sm">
+        <button onclick="showSection('gallery')" class="nav-btn px-4 py-2 rounded-xl bg-black text-white">
+          Gallery
+        </button>
+
+        <button onclick="showSection('results')" class="nav-btn px-4 py-2 rounded-xl bg-white border border-gray-200">
+          Results
+        </button>
+
+        <button onclick="showSection('submit')" class="nav-btn px-4 py-2 rounded-xl bg-white border border-gray-200">
+          Submit
+        </button>
+
+        <button
+          onclick="openAdmin()"
+          class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-black transition"
+          title="Admin Login"
+        >
+          ⚙
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-6xl mx-auto px-6 py-10">
+
+    <section id="resultsSection" class="hidden mb-10">
+      <div class="glass soft-shadow rounded-3xl p-8">
+        <div class="flex flex-wrap items-center justify-between gap-6">
+
+          <div>
+            <p class="text-sm uppercase tracking-[0.25em] text-gray-400 mb-2">
+              Current Leader
+            </p>
+
+            <h2 id="winnerTitle" class="text-3xl font-semibold">
+              Threads of Tomorrow
+            </h2>
+
+            <p id="winnerAuthor" class="text-gray-500 mt-2">
+              S. Rahman • 18 votes
+            </p>
+          </div>
+
+          <div class="text-6xl font-bold text-gray-200">
+            #1
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <div class="mb-12 text-center">
+      <h1 class="text-5xl font-semibold tracking-tight mb-4">
+        Apparel Engineering
+      </h1>
+
+      <p class="text-gray-600 text-lg">
+        Bangladesh University of Textiles — Batch '52
+      </p>
+    </div>
+
+
+    <div class="grid lg:grid-cols-3 gap-8">
+
+      <div class="lg:col-span-2">
+
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-semibold">Submitted Covers</h2>
+
+          <button
+            onclick="sortCards()"
+            class="px-4 py-2 rounded-xl bg-black text-white text-sm"
+          >
+            Sort by Votes
+          </button>
+        </div>
+
+        <div id="cards" class="grid md:grid-cols-2 gap-6"></div>
+      </div>
+
+
+      <div id="submitSection">
+
+        <div class="glass soft-shadow rounded-3xl p-6 sticky top-6">
+
+          <h3 class="text-2xl font-semibold mb-2">
+            Submit Your Cover
+          </h3>
+
+          <p class="text-sm text-gray-500 mb-6">
+            Upload your design information here.
+          </p>
+
+          <form id="submitForm" class="space-y-4">
+
+            <input
+              id="name"
+              type="text"
+              placeholder="Your Name"
+              class="w-full border border-gray-200 bg-white rounded-xl px-4 py-3"
+              required
+            />
+
+            
+
+            
+
+            
+
+            <div>
+              <label class="block text-sm text-gray-500 mb-2">
+                Upload Cover Image
+              </label>
+
+              <input
+                id="imageUpload"
+                type="file"
+                accept="image/png,image/jpeg,image/jpg,image/webp"
+                class="w-full border border-dashed border-gray-300 bg-white rounded-2xl px-4 py-5 text-sm"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="w-full bg-black text-white rounded-xl py-3 font-medium"
+            >
+              Submit Cover
+            </button>
+
+          </form>
+
+          <div class="mt-8 pt-6 border-t border-gray-200">
+            <h4 class="font-semibold mb-2">Important</h4>
+
+            <p class="text-sm text-gray-600 leading-relaxed">
+              This version stores submissions in browser local storage.
+              Everyone on different devices will NOT see the same data.
+              For real submissions from classmates, connect a backend.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+
+  const cardsContainer = document.getElementById('cards');
+
+  let submissions = JSON.parse(localStorage.getItem('butex_submissions')) || [
+    {
+      id: 1,
+      author: 'S. Rahman',
+      image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=1200&auto=format&fit=crop',
+      votes: 18
+    },
+    {
+      id: 2,
+      author: 'N. Ahmed',
+      image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1200&auto=format&fit=crop',
+      votes: 11
+    }
+  ];
+
+
+  function saveData() {
+    localStorage.setItem('butex_submissions', JSON.stringify(submissions));
+  }
+
+
+  function renderCards() {
+
+    cardsContainer.innerHTML = '';
+
+    submissions.forEach(item => {
+
+      const div = document.createElement('div');
+
+      div.className = `glass soft-shadow rounded-3xl p-6`;
+
+      div.innerHTML = `
+
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <div>
+            <h3 class="text-xl font-semibold mb-1">Cover Submission</h3>
+            <p class="text-gray-500 text-sm">${item.author}</p>
+          </div>
+
+          <div class="text-right">
+            <div class="text-2xl font-bold">${item.votes}</div>
+            <div class="text-xs text-gray-400">votes</div>
+          </div>
+        </div>
+
+        <img
+          src="${item.image}"
+          class="w-full h-56 object-cover rounded-2xl mb-5 border border-gray-100"
+        />
+
+        <button
+          onclick="vote(${item.id})"
+          class="px-4 py-2 rounded-xl bg-black text-white text-sm"
+        >
+          Vote
+        </button>
+
+        ${window.isAdmin ? `
+        <button
+          onclick="deleteSubmission(${item.id})"
+          class="ml-2 px-4 py-2 rounded-xl bg-red-100 text-red-600 text-sm"
+        >
+          Delete
+        </button>
+        ` : ''}
+      `;
+
+      cardsContainer.appendChild(div);
+    });
+  }
+
+
+  function vote(id) {
+
+    submissions = submissions.map(item => {
+      if(item.id === id) {
+        item.votes += 1;
+      }
+      return item;
+    });
+
+    saveData();
+    renderCards();
+  }
+
+
+  function sortCards() {
+
+    submissions.sort((a,b) => b.votes - a.votes);
+
+    renderCards();
+  }
+
+
+  document.getElementById('submitForm').addEventListener('submit', function(e){
+
+    e.preventDefault();
+
+    const file = document.getElementById('imageUpload').files[0];
+
+    if(!file) {
+      alert('Please upload an image.');
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+
+      const data = {
+        id: Date.now(),
+        author: document.getElementById('name').value,
+        image: event.target.result,
+        votes: 0
+      };
+
+      submissions.unshift(data);
+
+      saveData();
+      renderCards();
+      updateResults();
+
+      e.target.reset();
+
+      alert('Submission added successfully.');
+    };
+
+    reader.readAsDataURL(file);
+  });
+
+
+  function deleteSubmission(id) {
+
+    if(!window.isAdmin) return;
+
+    submissions = submissions.filter(item => item.id !== id);
+
+    saveData();
+    renderCards();
+    updateResults();
+  }
+
+
+  function clearAllSubmissions() {
+
+    if(!window.isAdmin) return;
+
+    if(confirm('Delete all submissions?')) {
+      submissions = [];
+
+      saveData();
+      renderCards();
+      updateResults();
+    }
+  }
+
+
+  function resetVotes() {
+
+    if(!window.isAdmin) return;
+
+    submissions = submissions.map(item => ({
+      ...item,
+      votes: 0
+    }));
+
+    saveData();
+    renderCards();
+    updateResults();
+  }
+
+
+  window.isAdmin = false;
+
+
+  renderCards();
+
+</script>
+
+
+
+<div id="adminModal" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+
+  <div class="bg-white rounded-3xl p-8 w-full max-w-md soft-shadow">
+
+    <div id="adminPanel" class="hidden mb-6 border border-gray-200 rounded-2xl p-5 bg-gray-50">
+
+      <h3 class="text-lg font-semibold mb-4">
+        Admin Controls
+      </h3>
+
+      <div class="grid grid-cols-2 gap-3 mb-3">
+
+        <button onclick="clearAllSubmissions()" class="bg-red-500 text-white rounded-xl py-3 text-sm">
+          Delete All
+        </button>
+
+        <button onclick="resetVotes()" class="bg-black text-white rounded-xl py-3 text-sm">
+          Reset Votes
+        </button>
+
+      </div>
+
+      <p class="text-xs text-gray-500">
+        Full gallery management enabled.
+      </p>
+
+    </div>
+
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-semibold">Admin Login</h2>
+
+      <button onclick="closeAdmin()" class="text-gray-400 text-xl">
+        ×
+      </button>
+    </div>
+
+    <form onsubmit="adminLogin(event)" class="space-y-4">
+
+      <input
+        id="adminUser"
+        type="text"
+        placeholder="Admin Username"
+        class="w-full border border-gray-200 rounded-xl px-4 py-3"
+      />
+
+      <input
+        id="adminPass"
+        type="password"
+        placeholder="Password"
+        class="w-full border border-gray-200 rounded-xl px-4 py-3"
+      />
+
+      <button
+        type="submit"
+        class="w-full bg-black text-white rounded-xl py-3"
+      >
+        Login
+      </button>
+
+    </form>
+  </div>
+</div>
+
+<script>
+
+  function showSection(section) {
+
+    const results = document.getElementById('resultsSection');
+    const submit = document.getElementById('submitSection');
+
+    if(section === 'results') {
+      results.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if(section === 'submit') {
+      submit.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    if(section === 'gallery') {
+      results.classList.add('hidden');
+      window.scrollTo({ top: 300, behavior: 'smooth' });
+    }
+  }
+
+
+  function openAdmin() {
+    document.getElementById('adminModal').classList.remove('hidden');
+  }
+
+
+  function closeAdmin() {
+    document.getElementById('adminModal').classList.add('hidden');
+  }
+
+
+  function adminLogin(event) {
+
+    event.preventDefault();
+
+    const user = document.getElementById('adminUser').value;
+    const pass = document.getElementById('adminPass').value;
+
+    if(user === 'admin' && pass === 'butex52') {
+      window.isAdmin = true;
+      document.getElementById('adminPanel').classList.remove('hidden');
+      renderCards();
+
+      alert('Admin access granted.');
+
+      closeAdmin();
+    } else {
+      alert('Wrong credentials.');
+    }
+  }
+
+
+  function updateResults() {
+
+    const sorted = [...submissions].sort((a,b) => b.votes - a.votes);
+
+    if(sorted.length > 0) {
+      document.getElementById('winnerTitle').innerText = 'Leading Submission';
+
+      document.getElementById('winnerAuthor').innerText = `${sorted[0].author} • ${sorted[0].votes} votes`;
+    }
+  }
+
+
+  updateResults();
+
+</script>
+
+</body>
+</html>
